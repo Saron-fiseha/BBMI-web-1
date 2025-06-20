@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+    --primary: 45 100% 39%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 45 15% 95%;
+    --secondary-foreground: 0 0% 13%;
+    --muted: 45 15% 95%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 308 35% 28%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 45 15% 90%;
+    --input: 45 15% 90%;
+    --ring: 45 100% 39%;
+    --radius: 0.5rem;
+    --chart-1: 45 100% 39%;
+    --chart-2: 308 35% 28%;
+    --chart-3: 45 15% 95%;
+    --chart-4: 0 0% 13%;
+    --chart-5: 45 80% 60%;
+  }
+
+  .dark {
+    --background: 0 0% 13%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 100% 39%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 308 35% 28%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 45 100% 39%;
+    --chart-1: 45 100% 39%;
+    --chart-2: 308 35% 28%;
+    --chart-3: 45 15% 95%;
+    --chart-4: 0 0% 13%;
+    --chart-5: 45 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .container {
+    @apply px-4 mx-auto w-full max-w-7xl;
+  }
+
+  .gradient-gold {
+    background: linear-gradient(135deg, #c5a100 0%, #f4d03f 50%, #c5a100 100%);
+  }
+
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 bg-clip-text text-transparent;
+  }
+
+  .bg-mustard {
+    background-color: #c5a100;
+  }
+
+  .bg-deep-purple {
+    background-color: #6b2d5c;
+  }
+
+  .bg-ivory {
+    background-color: #f8f1e5;
+  }
+
+  .bg-charcoal {
+    background-color: #222222;
+  }
+
+  .text-mustard {
+    color: #c5a100;
+  }
+
+  .text-deep-purple {
+    color: #6b2d5c;
+  }
+
+  .text-ivory {
+    color: #f8f1e5;
+  }
+
+  .text-charcoal {
+    color: #222222;
+  }
+
+  .border-mustard {
+    border-color: #c5a100;
+  }
+
+  .border-deep-purple {
+    border-color: #6b2d5c;
+  }
+}
