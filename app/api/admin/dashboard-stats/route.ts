@@ -10,7 +10,7 @@ export async function GET() {
     const totalUsers = Number.parseInt(usersResult[0].count)
 
     // Get total courses
-    const coursesResult = await sql`SELECT COUNT(*) as count FROM courses`
+    const coursesResult = await sql`SELECT COUNT(*) as count FROM trainings`
     const totalCourses = Number.parseInt(coursesResult[0].count)
 
     // Get total enrollments

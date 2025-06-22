@@ -11,7 +11,7 @@ export async function GET() {
         m.*,
         COALESCE(t.name, 'No Program') as program_name
       FROM modules m
-      LEFT JOIN trainings t ON m.program_id::text = t.id::text
+      LEFT JOIN trainings t ON m.training_id::text = t.id::text
       ORDER BY m.created_at DESC
     `
 
@@ -22,12 +22,12 @@ export async function GET() {
         id: module.id,
         name: module.name,
         description: module.description,
-        moduleCode: module.module_code || module.code,
-        programId: module.program_id || module.training_id,
-        programName: module.program_name || module.program,
-        videoId: module.video_id || module.video_url,
+        moduleCode: module.code,
+        programId: module.training_id,
+        programName: module.program_name,
+        videoId: module.video_url,
         duration: module.duration,
-        order: module.order_number || module.order_index,
+        order: module.order_index,
         status: module.status,
         createdAt: module.created_at,
       })),
@@ -48,12 +48,12 @@ export async function POST(request: NextRequest) {
 
     const result = await sql`
       INSERT INTO modules (
-        name, description, code, program_id, video_url, 
-        duration, order_index, status, created_at
+        name, description, code, training_id, video_url, 
+        duration, order_index, status, created_at, updated_at
       )
       VALUES (
         ${name}, ${description}, ${moduleCode}, ${programId}, ${videoId},
-        ${duration}, ${order}, ${status || "draft"}, NOW()
+        ${duration}, ${order}, ${status || "draft"}, NOW(), NOW()
       )
       RETURNING *
     `
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       name: newModule.name,
       description: newModule.description,
       moduleCode: newModule.code,
-      programId: newModule.program_id,
+      programId: newModule.training_id,
       programName: programName,
       videoId: newModule.video_url,
       duration: newModule.duration,
@@ -94,7 +94,7 @@ export async function PUT(request: NextRequest) {
         name = ${name},
         description = ${description},
         code = ${moduleCode},
-        program_id = ${programId},
+        training_id = ${programId},
         video_url = ${videoId},
         duration = ${duration},
         order_index = ${order},
@@ -117,7 +117,7 @@ export async function PUT(request: NextRequest) {
       name: updatedModule.name,
       description: updatedModule.description,
       moduleCode: updatedModule.code,
-      programId: updatedModule.program_id,
+      programId: updatedModule.training_id,
       programName: programName,
       videoId: updatedModule.video_url,
       duration: updatedModule.duration,

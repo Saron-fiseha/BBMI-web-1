@@ -10,8 +10,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  serverComponentsExternalPackages: ['bcryptjs'],
+  
   experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
+    serverActions: true,
+    optimizeCss: true
   },
   images: {
     domains: ['images.unsplash.com', 'placeholder.svg'],

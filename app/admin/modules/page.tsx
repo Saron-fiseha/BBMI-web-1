@@ -79,51 +79,9 @@ export default function ModulesPage() {
       console.error("❌ Modules fetch error:", error)
       toast({
         title: "Error",
-        description: "Failed to fetch modules. Using sample data.",
+        description: "Failed to fetch modules",
         variant: "destructive",
       })
-      // Fallback to sample data
-      setModules([
-        {
-          id: "1",
-          name: "Introduction to Color Theory",
-          description: "Understanding color wheel and complementary colors for makeup",
-          moduleCode: "MKP-001-01",
-          programId: "1",
-          programName: "Advanced Makeup Techniques",
-          videoId: "dQw4w9WgXcQ",
-          duration: 45,
-          order: 1,
-          status: "active",
-          createdAt: "2024-01-15",
-        },
-        {
-          id: "2",
-          name: "Foundation Application Techniques",
-          description: "Professional foundation application for different skin types",
-          moduleCode: "MKP-001-02",
-          programId: "1",
-          programName: "Advanced Makeup Techniques",
-          videoId: "dQw4w9WgXcQ",
-          duration: 60,
-          order: 2,
-          status: "draft",
-          createdAt: "2024-01-16",
-        },
-        {
-          id: "3",
-          name: "Basic Hair Cutting Techniques",
-          description: "Fundamental hair cutting methods and tools",
-          moduleCode: "HST-002-01",
-          programId: "2",
-          programName: "Hair Styling Fundamentals",
-          videoId: "dQw4w9WgXcQ",
-          duration: 90,
-          order: 1,
-          status: "inactive",
-          createdAt: "2024-02-10",
-        },
-      ])
     } finally {
       setIsLoading(false)
     }
@@ -134,7 +92,18 @@ export default function ModulesPage() {
       const response = await fetch("/api/admin/trainings")
       if (response.ok) {
         const data = await response.json()
-        setPrograms(data.map((training: any) => ({ id: training.id, name: training.name })))
+        // Handle the correct response structure - data.trainings contains the array
+        if (data.trainings && Array.isArray(data.trainings)) {
+          setPrograms(data.trainings.map((training: any) => ({ id: training.id, name: training.name })))
+        } else {
+          console.error("Trainings data structure is incorrect:", data)
+          // Fallback to sample data
+          setPrograms([
+            { id: "1", name: "Advanced Makeup Techniques" },
+            { id: "2", name: "Hair Styling Fundamentals" },
+            { id: "3", name: "Skincare Specialist Certification" },
+          ])
+        }
       }
     } catch (error) {
       console.error("Error fetching programs:", error)

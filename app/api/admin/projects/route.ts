@@ -8,35 +8,102 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search") || ""
     const type = searchParams.get("type") || "all"
+    const status = searchParams.get("status") || "all"
 
-    let query = `
-      SELECT 
-        p.*,
-        COALESCE((SELECT COUNT(*) FROM courses WHERE project_id = p.id), 0) as trainings_count,
-        COALESCE((SELECT COUNT(DISTINCT e.user_id) FROM enrollments e JOIN courses c ON e.course_id = c.id WHERE c.project_id = p.id), 0) as students_count
-      FROM projects p
-      WHERE 1=1
-    `
-    const params = []
-    let paramIndex = 1
-
-    if (search) {
-      query += ` AND (p.name ILIKE $${paramIndex} OR p.mentor_name ILIKE $${paramIndex})`
-      params.push(`%${search}%`)
-      paramIndex++
+    // Build query based on filters using tagged template literals
+    if (search && type !== "all" && status !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE (p.name ILIKE ${`%${search}%`} OR p.mentor_name ILIKE ${`%${search}%`} OR p.description ILIKE ${`%${search}%`})
+        AND p.type = ${type}
+        AND p.status = ${status}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (search && type !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE (p.name ILIKE ${`%${search}%`} OR p.mentor_name ILIKE ${`%${search}%`} OR p.description ILIKE ${`%${search}%`})
+        AND p.type = ${type}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (search && status !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE (p.name ILIKE ${`%${search}%`} OR p.mentor_name ILIKE ${`%${search}%`} OR p.description ILIKE ${`%${search}%`})
+        AND p.status = ${status}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (type !== "all" && status !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE p.type = ${type}
+        AND p.status = ${status}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (search) {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE (p.name ILIKE ${`%${search}%`} OR p.mentor_name ILIKE ${`%${search}%`} OR p.description ILIKE ${`%${search}%`})
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (type !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE p.type = ${type}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else if (status !== "all") {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        WHERE p.status = ${status}
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
+    } else {
+      const projects = await sql`
+        SELECT 
+          p.*,
+          0 as trainings_count,
+          0 as students_count
+        FROM projects p
+        ORDER BY p.created_at DESC
+      `
+      return NextResponse.json({ projects })
     }
-
-    if (type !== "all") {
-      query += ` AND p.type = $${paramIndex}`
-      params.push(type)
-      paramIndex++
-    }
-
-    query += ` ORDER BY p.created_at DESC`
-
-    const projects = await sql(query, params)
-
-    return NextResponse.json({ projects })
   } catch (error) {
     console.error("Projects fetch error:", error)
     return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 })
@@ -53,7 +120,7 @@ export async function POST(request: NextRequest) {
 
     const project = await sql`
       INSERT INTO projects (name, description, image_url, type, mentor_name, mentor_address, status, created_at, updated_at)
-      VALUES (${name}, ${description}, ${image_url || ""}, ${type}, ${mentor_name}, ${mentor_address || ""}, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      VALUES (${name}, ${description}, ${image_url || ""}, ${type || "free"}, ${mentor_name}, ${mentor_address || ""}, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *
     `
 
@@ -75,7 +142,7 @@ export async function PUT(request: NextRequest) {
     const project = await sql`
       UPDATE projects 
       SET name = ${name}, description = ${description}, image_url = ${image_url || ""}, 
-          type = ${type}, mentor_name = ${mentor_name}, mentor_address = ${mentor_address || ""}, 
+          type = ${type || "free"}, mentor_name = ${mentor_name}, mentor_address = ${mentor_address || ""}, 
           status = ${status || "active"}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
       RETURNING *

@@ -4,7 +4,16 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Users, BookOpen, TrendingUp, DollarSign, Target } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts"
+
+interface DashboardStats {
+  totalStudents: number
+  activeCourses: number
+  newRegistrations: number
+  totalRevenue: number
+}
 
 const monthlyData = [
   { name: "Jan", students: 40, revenue: 2400 },
@@ -32,6 +41,17 @@ const studentsPerCourseData = [
   { name: "Nail Artistry", students: 22, fill: "#E67E22" },
 ]
 
+interface PerformanceData {
+  monthlyTableData: Array<{
+    month: string
+    newStudents: number
+    revenue: string
+    completionRate: string
+    growth: string
+    completionBadge: string
+  }>
+}
+
 const DashboardPage = () => {
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -40,6 +60,67 @@ const DashboardPage = () => {
     activeCourses: 0,
     newRegistrations: 0,
     totalRevenue: 0,
+  })
+
+  const [performanceData, setPerformanceData] = useState<PerformanceData>({
+    monthlyTableData: [
+      {
+        month: "January",
+        newStudents: 40,
+        revenue: "$24,000",
+        completionRate: "94%",
+        growth: "+12%",
+        completionBadge: "green",
+      },
+      {
+        month: "February",
+        newStudents: 30,
+        revenue: "$18,000",
+        completionRate: "89%",
+        growth: "-5%",
+        completionBadge: "yellow",
+      },
+      {
+        month: "March",
+        newStudents: 45,
+        revenue: "$27,000",
+        completionRate: "96%",
+        growth: "+18%",
+        completionBadge: "green",
+      },
+      {
+        month: "April",
+        newStudents: 38,
+        revenue: "$22,800",
+        completionRate: "92%",
+        growth: "+8%",
+        completionBadge: "green",
+      },
+      {
+        month: "May",
+        newStudents: 42,
+        revenue: "$25,200",
+        completionRate: "95%",
+        growth: "+15%",
+        completionBadge: "green",
+      },
+      {
+        month: "June",
+        newStudents: 35,
+        revenue: "$21,000",
+        completionRate: "88%",
+        growth: "-3%",
+        completionBadge: "yellow",
+      },
+      {
+        month: "July",
+        newStudents: 48,
+        revenue: "$28,800",
+        completionRate: "97%",
+        growth: "+22%",
+        completionBadge: "green",
+      },
+    ],
   })
 
   useEffect(() => {
@@ -78,6 +159,18 @@ const DashboardPage = () => {
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-mustard"></div>
       </div>
     )
+  }
+
+  const fetchPerformanceData = async () => {
+    try {
+      const response = await fetch("/api/admin/dashboard/performance")
+      if (response.ok) {
+        const data = await response.json()
+        setPerformanceData(data)
+      }
+    } catch (error) {
+      console.error("Error fetching performance data:", error)
+    }
   }
 
   return (
@@ -220,16 +313,66 @@ const DashboardPage = () => {
         </CardContent>
       </Card>
 
-      {/* Overview Section */}
-      <Card className="bg-gradient-to-r from-mustard/5 to-purple/5 border-mustard/20">
+       {/* Monthly Performance Table */}
+      <Card className="bg-white border-yellow-200">
         <CardHeader>
-          <CardTitle className="text-charcoal">BBMI - Brushed by Betty Makeup Institute Overview</CardTitle>
+          <CardTitle className="text-gray-900">Monthly Performance Overview</CardTitle>
+          <CardDescription className="text-gray-600">Students and revenue trends for the past 7 months</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-deep-purple leading-relaxed">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-yellow-200">
+                  <th className="text-left p-3 text-gray-900 font-semibold">Month</th>
+                  <th className="text-left p-3 text-gray-900 font-semibold">New Students</th>
+                  <th className="text-left p-3 text-gray-900 font-semibold">Revenue</th>
+                  <th className="text-left p-3 text-gray-900 font-semibold">Completion Rate</th>
+                  <th className="text-left p-3 text-gray-900 font-semibold">Growth</th>
+                </tr>
+              </thead>
+              <tbody>
+                {performanceData.monthlyTableData.map((row, index) => (
+                  <tr key={index} className="border-b border-yellow-100 hover:bg-yellow-50">
+                    <td className="p-3 text-gray-600">{row.month}</td>
+                    <td className="p-3 text-gray-900 font-medium">{row.newStudents}</td>
+                    <td className="p-3 text-gray-900 font-medium">{row.revenue}</td>
+                    <td className="p-3">
+                      <Badge
+                        className={
+                          row.completionBadge === "green"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {row.completionRate}
+                      </Badge>
+                    </td>
+                    <td className={`p-3 ${row.growth.startsWith("+") ? "text-green-600" : "text-red-600"}`}>
+                      {row.growth}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Overview Section */}
+      <Card className="bg-gradient-to-r from-yellow-50 to-purple-50 border-yellow-200">
+        <CardHeader>
+          <CardTitle className="text-gray-900 flex items-center gap-2">
+            <Target className="h-5 w-5 text-yellow-600" />
+            BBMI - Brushed by Betty Makeup Institute Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600 leading-relaxed">
             Welcome to the BBMI admin dashboard. Here you can monitor key metrics, manage courses, track student
             progress, and oversee all aspects of your beauty education platform. Use the sidebar to navigate between
-            different administrative functions.
+            different administrative functions including role management, user accounts, project creation, training
+            categories, trainings, modules, students, and instructors.
           </p>
         </CardContent>
       </Card>

@@ -8,8 +8,6 @@ interface Props {
 const AdminDashboardLayout = ({ children }: Props) => {
   return (
     <div className="flex h-screen bg-ivory">
-      {/* Admin Sidebar
-      <AdminSidebar /> */}
 
       {/* Main Content */}
       <div className="flex-1 overflow-x-hidden overflow-y-auto bg-ivory">

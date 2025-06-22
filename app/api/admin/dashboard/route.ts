@@ -8,7 +8,7 @@ export async function GET() {
     // Get total counts
     const totalStudents = await sql`SELECT COUNT(*) as count FROM users WHERE role = 'student'`
     const totalInstructors = await sql`SELECT COUNT(*) as count FROM users WHERE role = 'instructor'`
-    const totalCourses = await sql`SELECT COUNT(*) as count FROM courses WHERE status = 'active'`
+    const totalCourses = await sql`SELECT COUNT(*) as count FROM trainings WHERE status = 'active'`
     const totalEnrollments = await sql`SELECT COUNT(*) as count FROM enrollments`
 
     // Get revenue data
