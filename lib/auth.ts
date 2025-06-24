@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs"
 import { SignJWT, jwtVerify } from "jose"
 import { sql } from "@/lib/db"
+import { Resend } from "resend"
+
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production"
 
@@ -202,26 +204,69 @@ export function generateResetToken(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
 
-export async function createResetToken(email: string): Promise<boolean> {
+
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+export async function createResetToken(email: string): Promise<{ success: boolean; message: string }> {
   try {
+
+// Check if user exists
+const users = await sql`
+SELECT id FROM users WHERE email = ${email.toLowerCase()}
+`
+
+if (users.length === 0) {
+return {
+  success: false,
+  message: "Email is not registered",
+}
+}
+
+ // Create token and expiry
     const resetToken = generateResetToken()
     const expiresAt = new Date(Date.now() + 3600000) // 1 hour from now
-
+ // Store token in database
     await sql`
       UPDATE users 
       SET reset_token = ${resetToken}, reset_token_expires = ${expiresAt}
       WHERE email = ${email.toLowerCase()}
     `
-
+    // 🔒 Free Plan + No Domain = Only Test Emails Work
+    // You can only send emails to test email addresses you’ve manually added in the Resend dashboard.
     // In a real app, you would send an email here
-    console.log(`Reset token for ${email}: ${resetToken}`)
+     // ✅ Send the email with the reset link
+     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
 
-    return true
-  } catch (error) {
-    console.error("Reset token creation error:", error)
-    return false
-  }
-}
+     // Send the email
+    const response = await resend.emails.send({
+      
+      // from: "no-reply@bbmi.com", // You MUST verify this address in Resend
+      from: "onboarding@resend.dev", 
+      to: email,
+       subject: "Reset your BBMI password",
+       html: `
+         <p>Hi,</p>
+         <p>You requested a password reset. Click the link below to reset your password:</p>
+         <p><a href="${resetUrl}">${resetUrl}</a></p>
+         <p>This link will expire in 1 hour.</p>
+         <p>If you didn't request this, you can ignore this email.</p>
+       `,
+     })
+     console.log("Password reset email sent to:", email, "Response:", response)
+
+     return {
+       success: true,
+       message: "Password reset link sent to your email",
+     }
+   } catch (error) {
+     console.error("Error sending password reset email:", error)
+     return {
+       success: false,
+       message: "Something went wrong. Please try again later.",
+     }
+   }
+ }
+ 
 
 export async function resetPassword(token: string, newPassword: string): Promise<boolean> {
   try {

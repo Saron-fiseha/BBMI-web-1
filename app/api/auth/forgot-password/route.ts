@@ -7,27 +7,23 @@ export async function POST(request: NextRequest) {
     const { email } = body
 
     if (!email) {
-      return NextResponse.json({ success: false, message: "Email is required" }, { status: 400 })
+      return NextResponse.json(
+        { success: false, message: "Email is required" },
+        { status: 400 }
+      )
     }
 
     const result = await createResetToken(email.toLowerCase())
 
-    if (result) {
-      return NextResponse.json({
-        success: true,
-        message: "Password reset instructions have been sent to your email",
-      })
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Failed to send reset email",
-        },
-        { status: 500 },
-      )
-    }
+    return NextResponse.json(
+      result,
+      { status: result.success ? 200 : 400 }
+    )
   } catch (error) {
     console.error("Forgot password API error:", error)
-    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    )
   }
 }

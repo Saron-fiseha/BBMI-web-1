@@ -50,15 +50,15 @@ export default function LoginPage() {
     })
   }
 
-  const fillDemoCredentials = (role: "admin" | "instructor" | "student") => {
-    const credentials = {
-      admin: { email: "admin@bbmi.com", password: "Admin123!" },
-      instructor: { email: "instructor@bbmi.com", password: "Instructor123!" },
-      student: { email: "student@bbmi.com", password: "Student123!" },
-    }
+  // const fillDemoCredentials = (role: "admin" | "instructor" | "student") => {
+  //   const credentials = {
+  //     admin: { email: "admin@bbmi.com", password: "Admin123!" },
+  //     instructor: { email: "instructor@bbmi.com", password: "Instructor123!" },
+  //     student: { email: "student@bbmi.com", password: "Student123!" },
+  //   }
 
-    setFormData(credentials[role])
-  }
+  //   setFormData(credentials[role])
+  // }
 
   return (
     <div className="min-h-screen flex flex-col">
